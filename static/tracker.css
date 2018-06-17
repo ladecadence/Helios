@@ -24,7 +24,7 @@ a:hover {
 
 #content {
 	overflow: hidden;
-	height:90%;
+	height:85%;
 	width: 100%;
 }
 
@@ -35,7 +35,7 @@ a:hover {
 	float: left;
 	width: 220px;
 	height: 100%;
-	background: #333;
+	background: #eee;
 	box-shadow: 2px 0 6px 0 #000;
 	z-index: 1000;
 	overflow: auto;
@@ -45,7 +45,7 @@ a:hover {
 
 #middle_column {
 	height: 100%;
-	background: #333;
+	background: #eee;
 	overflow: hidden;
 	padding-bottom: 500em;
 	margin-bottom: -500em;
@@ -59,19 +59,19 @@ a:hover {
 }
 
 #right_column {
-	background: #333;
+	background: #eee;
 	position: relative;
 	float: right;
 	width: 200px;
 	height: 100%;
-	//background: #eee;
+	//background: #333;
 	overflow: hidden;
 	box-shadow: -2px 0 6px 0 #000;
 	z-index: 1000;
 }
 
 .logo {
-	background: #333;
+	background: #eee;
 	margin-top: 0px;
 }
 
@@ -82,8 +82,8 @@ a:hover {
 
 #clock {
 	padding: 20px;
-	background: #333;
-	color: #eee;
+	background: #eee;
+	color: #333;
 	top: 20px;
 	z-index: 1000;
 	font-family: Sans-Serif; 
@@ -100,6 +100,7 @@ a:hover {
 	text-transform: uppercase;
 	font-weight: 300;
 	margin-top: 10px;
+	color: #666;
 }
 
 #clock h2 {
@@ -110,8 +111,8 @@ a:hover {
 
 #ssdv {
 	padding-top: 0px;
-	background: #333;
-	color: #eee;
+	background: #eee;
+	color: #333;
 	top: 20px;
 	z-index: 1000;
 	font-family: Sans-Serif; 
@@ -139,8 +140,8 @@ a:hover {
 	height:100%;
 	padding: 20px;
 	padding-top: 5px;
-	background: #333;
-	color: #eee;
+	background: #eee;
+	color: #333;
 	top: 150px;
 	left: 50px;
 	z-index: 1000;
@@ -156,6 +157,7 @@ a:hover {
 #status span {
 	font-size: 11px;
 	text-transform: uppercase;
+	color: #666;
 	font-weight: 300;
 	line-height: 1em;
 	vertical-align: bottom;
@@ -167,14 +169,14 @@ a:hover {
 }
 
 #status a, a:visited, a:active {
-	color: #eee;
+	color: #333;
 }
 
 
 #alt-chart {
 	height: 130px;
-	background: #333;
-        color: #eee;
+	background: #eee;
+        color: #333;
 	text-align: right;
 	padding-left: 20px;
 	padding-right: 20px;
@@ -197,8 +199,8 @@ a:hover {
 
 
 #altChart {
-	background: #333;
-	color: #eee;
+	background: #eee;
+	color: #333;
 	width: 180px;
 	height: 120px;
 }
@@ -224,10 +226,40 @@ a:hover {
         font-weight: 600;
 }
 
+#header {
+	clear: both;
+	width: 100%;
+	height: 50px;
+	font-family: Sans-Serif; 
+	text-transform: uppercase;
+	font-size: 11px;
+	padding-left: 20px;
+	padding-top: 10px;
+	background: #00a3d3;
+	color: #fff;
+	text-shadow: 1px 1px 1px rgba(0,0,0,0.1);
+	border-bottom: 2px solid #999;
+	z-index: 2000;
+	box-shadow: 0 2px 6px 0 #000;
+}
+	
+#header a, a:visited, a:active {
+        text-decoration: none;
+        color: #000;
+        font-weight: 600;
+}
+
+#header h1 {
+	font-weight: 500;
+	font-size: 1.5em;
+	display: inline;
+}
+
+
 .alt {
 	display: none;
 	padding: 10px;
-	background: #333;
+	background: #eee;
 	height: 500px;
 	width: 50px;
 	z-index: 1000;
@@ -237,7 +269,7 @@ a:hover {
 	font-variant: normal; 
 	font-weight: normal;
 	text-align: right;
-	color: #666;
+	color: #333;
 	border: #000 solid 1px;
 	-webkit-border-radius: 4px 4px 4px 4px;
 	border-radius: 4px 4px 4px 4px;

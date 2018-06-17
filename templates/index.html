@@ -232,13 +232,13 @@
 					label: "Altitude",
 					backgroundColor : "rgba(238,238,238,1)",
 					fill: true,
-					strokeColor : "#eee",
-					pointColor : "#eee",
+					strokeColor : "#333",
+					pointColor : "#333",
 					pointStrokeColor : "#9DB86D",
 					lineTension : 0.4,
 					pointRadius : 0,
 					borderWidth : 1,
-					borderColor: "#eee",
+					borderColor: "#333",
 					data : altitudes
 				}
 			]
@@ -264,7 +264,7 @@
 					},
 					ticks: {
                                                 fontSize: 8,
-						fontColor: "#ccc",
+						fontColor: "#666",
 						min: 0
                                         }
 				}]				    	
@@ -315,7 +315,12 @@
 
   </head>
   <body onload="init();">
-  	<div id="content">
+  	<div id="header">
+		<img src="{{ url_for('static', filename='img/helios.png', _external=True) }}" alt="HELIOS LOGO" height="32" style="vertical-align: bottom;" />
+		<h1>Helios - ASHAB High Altitude Balloon Tracker</h1>
+	</div>
+
+	<div id="content">
      		<div id="left_column">
 			<div id="status"></div>
     		</div>
@@ -338,7 +343,7 @@
  	 </div>
 	<div id="footer">
 		&copy;2018 David Pello & ASHAB - Asturias High Altitude Ballooning<br />
-		Source code at <a href="https://github.com/ladecadence/ASHAB-Tracker">GitHub</a><br />
+		Source code at <a href="https://github.com/ladecadence/Helios">GitHub</a><br />
 		<a href="http://ashab.space">http://ashab.space</a>
 	</div>
 
