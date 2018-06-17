@@ -1,0 +1,305 @@
+html, body {
+	width: 100%;
+	height: 100%;
+	margin: auto;
+	z-index: 1;
+	background: #333;
+	font-family: Sans-Serif; 
+	text-transform: uppercase;
+	font-weight: 300;
+	
+}
+
+a, a:visited, a:active {
+	text-decoration: none;
+	color: #000;
+	font-weight: 600;
+}
+
+a:hover {
+	text-decoration: underline;
+}
+
+
+
+#content {
+	overflow: hidden;
+	height:90%;
+	width: 100%;
+}
+
+
+
+#left_column {
+	position: relative;
+	float: left;
+	width: 220px;
+	height: 100%;
+	background: #333;
+	box-shadow: 2px 0 6px 0 #000;
+	z-index: 1000;
+	overflow: auto;
+}
+
+
+
+#middle_column {
+	height: 100%;
+	background: #333;
+	overflow: hidden;
+	padding-bottom: 500em;
+	margin-bottom: -500em;
+}
+
+#map {
+	position: relative;
+	height: 100%;
+	width: 100%;
+	z-index: 1;
+}
+
+#right_column {
+	background: #333;
+	position: relative;
+	float: right;
+	width: 200px;
+	height: 100%;
+	//background: #eee;
+	overflow: hidden;
+	box-shadow: -2px 0 6px 0 #000;
+	z-index: 1000;
+}
+
+.logo {
+	background: #333;
+	margin-top: 0px;
+}
+
+.logo img {
+	margin-left: 50px;
+	margin-right: auto;
+}
+
+#clock {
+	padding: 20px;
+	background: #333;
+	color: #eee;
+	top: 20px;
+	z-index: 1000;
+	font-family: Sans-Serif; 
+	font-size: 14px; 
+	font-style: normal; 
+	font-variant: normal; 
+	font-weight: normal;
+	text-align: right;
+	//height: 100%;
+}
+
+#clock span {
+	font-size: 11px;
+	text-transform: uppercase;
+	font-weight: 300;
+	margin-top: 10px;
+}
+
+#clock h2 {
+	font-weight: 500;
+	font-size: 1.5em;
+	margin-bottom: -10px;
+}
+
+#ssdv {
+	padding-top: 0px;
+	background: #333;
+	color: #eee;
+	top: 20px;
+	z-index: 1000;
+	font-family: Sans-Serif; 
+	font-size: 14px; 
+	font-style: normal; 
+	font-variant: normal; 
+	font-weight: normal;
+	text-align: left;
+	//height: 100%;
+}
+
+#ssdv h2 {
+	font-weight: 500;
+	font-size: 1.5em;
+	margin-bottom: -10px;
+}
+
+#ssdv img {
+	height: 120px;
+	margin-top: 2px;
+	margin-left: -2px;
+}
+
+#status {
+	height:100%;
+	padding: 20px;
+	padding-top: 5px;
+	background: #333;
+	color: #eee;
+	top: 150px;
+	left: 50px;
+	z-index: 1000;
+	font-family: Sans-Serif; 
+	font-size: 12px; 
+	font-style: normal; 
+	font-variant: normal; 
+	font-weight: normal;
+	vertical-align: top;
+
+}
+
+#status span {
+	font-size: 11px;
+	text-transform: uppercase;
+	font-weight: 300;
+	line-height: 1em;
+	vertical-align: bottom;
+}
+
+#status h2 {
+	font-weight: 500;
+	font-size: 1.5em;
+}
+
+#status a, a:visited, a:active {
+	color: #eee;
+}
+
+
+#alt-chart {
+	height: 130px;
+	background: #333;
+        color: #eee;
+	text-align: right;
+	padding-left: 20px;
+	padding-right: 20px;
+}
+
+#alt-chart span {
+	font-size: 11px;
+	text-transform: uppercase;
+	font-weight: 300;
+	line-height: 1em;
+	vertical-align: bottom;
+	margin-bottom: 5px;
+}
+
+#alt-chart h2 {
+	font-weight: 500;
+	font-size: 1.2em;
+	margin-bottom: -10px;
+}
+
+
+#altChart {
+	background: #333;
+	color: #eee;
+	width: 180px;
+	height: 120px;
+}
+
+#footer {
+	clear: both;
+	width: 100%;
+	height: 50px;
+	font-family: Sans-Serif; 
+	text-transform: uppercase;
+	font-size: 11px;
+	font-weight: 300;
+	padding-left: 20px;
+	padding-top: 10px;
+	background: #eee;
+	border-top: 1px solid #999;
+	z-index: 2000;
+}
+	
+#footer a, a:visited, a:active {
+        text-decoration: none;
+        color: #000;
+        font-weight: 600;
+}
+
+.alt {
+	display: none;
+	padding: 10px;
+	background: #333;
+	height: 500px;
+	width: 50px;
+	z-index: 1000;
+	font-family: Sans-Serif; 
+	font-size: 10px; 
+	font-style: normal; 
+	font-variant: normal; 
+	font-weight: normal;
+	text-align: right;
+	color: #666;
+	border: #000 solid 1px;
+	-webkit-border-radius: 4px 4px 4px 4px;
+	border-radius: 4px 4px 4px 4px;
+
+}
+
+.alt .a0m {
+	position: absolute;
+	text-align: right;
+	font-weight: bold;
+	bottom: 0%;
+}
+
+.alt .a5000m {
+	position: absolute;
+	text-align: right;
+	bottom: 12.5%;
+}
+.alt .a10000m {
+	position: absolute;
+	text-align: right;
+	font-weight: bold;
+	bottom: 25%;
+}
+.alt .a15000m {
+	position: absolute;
+	text-align: right;
+	bottom: 37.5%;
+}
+.alt .a20000m {
+	position: absolute;
+	text-align: right;
+	font-weight: bold;
+	bottom: 50%;
+}
+.alt .a25000m {
+	position: absolute;
+	text-align: right;
+	bottom: 62.5%;
+}
+.alt .a30000m {
+	position: absolute;
+	text-align: right;
+	font-weight: bold;
+	bottom: 75%;
+}
+
+.alt .a35000m {
+	position: absolute;
+	text-align: right;
+	bottom: 87.5%;
+}
+.alt .a40000m {
+	position: absolute;
+	text-align: right;
+	font-weight: bold;
+	bottom: 100%;
+}
+
+.alt .alt-ns1 {
+	position: absolute;
+	padding-left: 10px;
+	bottom: 0%;
+	z-index: 1000;
+}
