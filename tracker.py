@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-from flask import Flask, render_template
+from flask import Flask, render_template, request
 from flask_httpauth import HTTPBasicAuth
 import logging
 import hashlib
@@ -33,7 +33,7 @@ def get_pw(username):
 @auth.error_handler
 def auth_error():
     app.logger.debug("Fallo de autentificación") 
-    return "No puedes pasar!"
+    return "No puedes pasar!\n"
 
 # Telemetry main webpage
 @app.route('/')
@@ -44,7 +44,7 @@ def hello_world():
 @app.route('/test')
 @auth.login_required
 def test():
-	return "Hello, %s!" % auth.username()	
+	return "Hello, %s!\n" % auth.username()	
 
 # Webservices
 # get data from mongodb by ID
@@ -102,7 +102,7 @@ def get_alt():
 	return json.dumps(data)
 
 # get all data
-@app.route('/get/')
+@app.route('/get')
 def get_all():
 	# connect to mongoDB and query database
 	mongo_client = MongoClient(options["mongo_host"], options["mongo_port"])
@@ -128,6 +128,57 @@ def get_all():
 
 	# return JSON
 	return json.dumps(data, sort_keys=True)
+
+
+def insert_telemetry(telem):
+	# check telemetry (dict 13 elements)
+	if len(telem) < 12:
+		return
+	# add the _id (timestamp with microseconds)
+	telem["_id"] = str(int(datetime.now().timestamp()*1000000))
+	# connect to mongoDB and select database and collection
+	mongo_client = MongoClient(options["mongo_host"], options["mongo_port"])
+	mongo_db = mongo_client[options["mongo_db"]]
+	mongo_collection = mongo_db[options["mongo_col"]]
+	# insert data
+	mongo_collection.insert_one(telem)
+	
+
+# upload
+@app.route('/upload', methods=['POST', 'GET'])
+@auth.login_required
+def upload():
+	# post or get ?
+	if request.method == 'POST':
+		if request.form['telemetry'] != "":
+			# return "detected telemetry.\n" + request.form['telemetry'] + "\n"
+			# get data
+			data = request.form['telemetry'].split(";")
+			# create dictionary
+			telemetry = {
+				'date' : data[0],
+				'time' : data[1],
+				'lat'  : data[2],
+				'lon'  : data[3],
+				'alt'  : data[4],
+				'batt' : data[5],
+				'tin'  : data[6],
+				'tout' : data[7],
+				'baro' : data[8],
+				'hdg'  : data[9],
+				'spd'  : data[10],
+				'sats' : data[11],
+				'a_rate' : data[12]
+			}
+			# insert data
+			insert_telemetry(telemetry)
+			
+		elif request.form['image'] != "":
+			return "detected image.\n"
+		else:
+			return "nothing detected!\n"
+	else:
+		return "what?\n"
 	
 ######### MAIN ##########
 if __name__ == '__main__':
