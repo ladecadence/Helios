@@ -10,6 +10,7 @@ from passwords import users
 from config import options
 from datetime import datetime
 import time
+import base64
 
 # Create app and configure logging
 app = Flask(__name__)
@@ -179,7 +180,15 @@ def upload():
 			
 			
 		elif request.form['image'] != "":
-			return "detected image.\n"
+			name = request.form['image']
+			#data = request.form['imageData']
+
+			raw_data = base64.decodestring(request.data)
+			image = open("/var/www/xzakox/public_html/test/static/ssdv/" + name, "w")
+			image.write(data)
+			image.close()
+			
+			return "detected image: " + data + ".\n"
 		else:
 			return "nothing detected!\n"
 	else:
