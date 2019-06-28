@@ -8,6 +8,8 @@ import pymongo
 import simplejson as json
 from passwords import users
 from config import options
+from datetime import datetime
+import time
 
 # Create app and configure logging
 app = Flask(__name__)
@@ -133,15 +135,17 @@ def get_all():
 def insert_telemetry(telem):
 	# check telemetry (dict 13 elements)
 	if len(telem) < 12:
-		return
+		return "Error, not enough fields"
 	# add the _id (timestamp with microseconds)
-	telem["_id"] = str(int(datetime.now().timestamp()*1000000))
+	telem["_id"] = str(int(time.mktime(datetime.now().timetuple())*1000000))
 	# connect to mongoDB and select database and collection
 	mongo_client = MongoClient(options["mongo_host"], options["mongo_port"])
 	mongo_db = mongo_client[options["mongo_db"]]
 	mongo_collection = mongo_db[options["mongo_col"]]
 	# insert data
-	mongo_collection.insert_one(telem)
+	return mongo_collection.insert(telem)
+
+	
 	
 
 # upload
@@ -171,7 +175,8 @@ def upload():
 				'a_rate' : data[12]
 			}
 			# insert data
-			insert_telemetry(telemetry)
+			return insert_telemetry(telemetry)
+			
 			
 		elif request.form['image'] != "":
 			return "detected image.\n"
