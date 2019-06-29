@@ -155,7 +155,24 @@ def insert_telemetry(telem):
 def upload():
 	# post or get ?
 	if request.method == 'POST':
-		if request.form['telemetry'] != "":
+		# image?
+		if 'image' in request.args:
+			# we have a image in the post data
+			# get name from url parameters
+			name = request.args.get('image')
+
+			image = open("/var/www/xzakox/public_html/test/static/ssdv/" + name, "w")
+			image.write(request.get_data().decode('base64'))
+			image.close()
+
+			last = open("/var/www/xzakox/public_html/test/static/ssdv/last.jpg", "w")
+			last.write(request.get_data().decode('base64'))
+			last.close()
+
+			return "uploaded image: " + name + ".\n"
+
+		# telemetry?
+		elif request.form['telemetry'] != "":
 			# return "detected telemetry.\n" + request.form['telemetry'] + "\n"
 			# get data
 			data = request.form['telemetry'].split(";")
@@ -179,16 +196,6 @@ def upload():
 			return insert_telemetry(telemetry)
 			
 			
-		elif request.form['image'] != "":
-			name = request.form['image']
-			#data = request.form['imageData']
-
-			raw_data = base64.decodestring(request.data)
-			image = open("/var/www/xzakox/public_html/test/static/ssdv/" + name, "w")
-			image.write(data)
-			image.close()
-			
-			return "detected image: " + data + ".\n"
 		else:
 			return "nothing detected!\n"
 	else:
