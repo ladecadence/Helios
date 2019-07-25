@@ -174,17 +174,17 @@ def tweet_telemetry(telem):
 	status_text += str(telem["lon"]) + "&zoom=14"
 	
 	# insert tweet
-	auth = tweepy.OAuthHandler(options["tweeter_cons_key"], options["tweeter_cons_secret"])
-	auth.set_access_token(options["tweeter_access_token"], options["tweeter_access_secret"])
+	auth = tweepy.OAuthHandler(options["twitter_cons_key"], options["twitter_cons_secret"])
+	auth.set_access_token(options["twitter_access_token"], options["twitter_access_secret"])
 
 	api = tweepy.API(auth)
 	try:
-		if options["tweeter_thread"] != "":
-			api.update_status(status=status_text, in_reply_to_status_id_str=options["tweeter_thread"])
+		if options["twitter_thread"] != "":
+			api.update_status(status=status_text, in_reply_to_status_id_str=options["twitter_thread"])
 		else:
 			api.update_status(status=status_text)
 	except:
-		return "Error enviando tweet"
+		return "Error enviando twit"
 
 
 
@@ -242,5 +242,5 @@ def upload():
 	
 ######### MAIN ##########
 if __name__ == '__main__':
-    app.run()
+    app.run(debug=True)
 
