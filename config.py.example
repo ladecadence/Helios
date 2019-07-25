@@ -10,5 +10,10 @@ options = {
 	"mongo_port" : 27017,
 	"mongo_db" : "ashab-test",
 	"mongo_col" : "data",
-	"ssdv_dir" : "ssdv/"
+	"ssdv_dir" : "ssdv/",
+	"tweeter_enabled": "true",
+	"tweeter_cons_key": "",
+	"tweeter_cons_secret": "",
+	"tweeter_access_token": "",
+	"tweeter_access_secret": "",
 }
