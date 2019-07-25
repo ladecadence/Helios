@@ -13,6 +13,7 @@ options = {
 	"ssdv_dir" : "ssdv/",
 	"tweeter_enabled": "true",
 	"tweeter_interval": 5,
+	"tweeter_thread": "",
 	"tweeter_cons_key": "",
 	"tweeter_cons_secret": "",
 	"tweeter_access_token": "",

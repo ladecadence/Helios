@@ -11,6 +11,7 @@ from config import options
 from datetime import datetime
 import time
 import base64
+import tweepy
 
 # Create app and configure logging
 app = Flask(__name__)
@@ -132,7 +133,7 @@ def get_all():
 	# return JSON
 	return json.dumps(data, sort_keys=True)
 
-
+# inserts telemetry in database
 def insert_telemetry(telem):
 	# check telemetry (dict 13 elements)
 	if len(telem) < 12:
@@ -146,8 +147,46 @@ def insert_telemetry(telem):
 	# insert data
 	return mongo_collection.insert(telem)
 
+# sends a tweet with the telemetry
+def tweet_telemetry(telem):
+	# check telemetry (dict 13 elements)
+        if len(telem) < 12:
+                return "Error, not enough fields"
 	
+	# convert coordinates (+/-)
+	if telem["lat"][len(telem["lat"])-1] == 'S':
+		telem["lat"] = "-" + telem["lat"][0:len(telem["lat"])-1].lstrip("0")
+	else:
+		telem["lat"] = telem["lat"][0:len(telem["lat"])-1].lstrip("0")
+
+	if telem["lon"][len(telem["lon"])-1] == 'W':
+		telem["lon"] = "-" + telem["lon"][0:len(telem["lon"])-1].lstrip("0")
+	else:
+		telem["lon"] = telem["lon"][0:len(telem["lon"])-1].lstrip("0")
+
+	# ok, create tweet text
+	status_text = "EKI-1 "
+	status_text += "está a "
+	status_text += str(telem["alt"]) + "m de altura"
+	status_text += "a " + str(telem["tout"]) + "ºC sobrevolando "
+	status_text += "http://www.openstreetmap.org/?mlat="
+	status_text += str(telem["lat"]) + "&mlon="
+	status_text += str(telem["lon"]) + "&zoom=14"
 	
+	# insert tweet
+	auth = tweepy.OAuthHandler(options["tweeter_cons_key"], options["tweeter_cons_secret"])
+	auth.set_access_token(options["tweeter_access_token"], options["tweeter_access_secret"])
+
+	api = tweepy.API(auth)
+	try:
+		if options["tweeter_thread"] != "":
+			api.update_status(status=status_text, in_reply_to_status_id_str=options["tweeter_thread"])
+		else:
+			api.update_status(status=status_text)
+	except:
+		return "Error enviando tweet"
+
+
 
 # upload
 @app.route('/upload', methods=['POST', 'GET'])
