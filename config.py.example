@@ -12,7 +12,7 @@ options = {
 	"mongo_db" : "ashab-test",
 	"mongo_col" : "data",
 	"ssdv_dir" : "ssdv/",
-	"twitter_enabled": "true",
+	"twitter_enabled": True,
 	"twitter_interval": 5,
 	"twitter_thread": "",
 	"twitter_cons_key": "",

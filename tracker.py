@@ -19,6 +19,7 @@ auth = HTTPBasicAuth()
 LOG_FILENAME = '/tmp/flask-errores.log'
 logging.basicConfig(filename=LOG_FILENAME,level=logging.DEBUG)
 app.logger.debug("Arranque de la app")
+insert_counter = 0  # for twitts
 
 # HTTPBasicAuth, returns hashed password
 @auth.hash_password
@@ -168,7 +169,7 @@ def tweet_telemetry(telem):
 	status_text = "EKI-1 "
 	status_text += "está a "
 	status_text += str(telem["alt"]) + "m de altura"
-	status_text += "a " + str(telem["tout"]) + "ºC sobrevolando "
+	status_text += "y a " + str(telem["tout"]) + "ºC sobrevolando "
 	status_text += "http://www.openstreetmap.org/?mlat="
 	status_text += str(telem["lat"]) + "&mlon="
 	status_text += str(telem["lon"]) + "&zoom=14"
@@ -184,7 +185,7 @@ def tweet_telemetry(telem):
 		else:
 			api.update_status(status=status_text)
 	except:
-		return "Error enviando twit"
+		return "Error enviando tweet"
 
 
 
@@ -232,7 +233,17 @@ def upload():
 				'a_rate' : data[12]
 			}
 			# insert data
-			return insert_telemetry(telemetry)
+			inserted = insert_telemetry(telemetry)
+
+                        # tweet?
+                        if config['twitter_enabled']:
+                            if insert_counter == 0:
+                                tweet_telemetry(telemetry)
+                            insert_counter += 1
+                            if insert_counter > config['twitter_interval']:
+                                insert_counter = 0
+
+                        return inserted
 			
 			
 		else:
