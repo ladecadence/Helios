@@ -19,7 +19,7 @@ auth = HTTPBasicAuth()
 LOG_FILENAME = '/tmp/flask-errores.log'
 logging.basicConfig(filename=LOG_FILENAME,level=logging.DEBUG)
 app.logger.debug("Arranque de la app")
-insert_counter = 0  # for twitts
+app.insert_counter = 0  # for twitts
 
 # HTTPBasicAuth, returns hashed password
 @auth.hash_password
@@ -37,155 +37,200 @@ def get_pw(username):
 # HTTPBasicAuth, failed authentication
 @auth.error_handler
 def auth_error():
-    app.logger.debug("Fallo de autentificación") 
+    app.logger.debug("Fallo de autentificación")
     return "No puedes pasar!\n"
 
 # Telemetry main webpage
 @app.route('/')
 def hello_world():
-	return render_template('index.html', config=options)
+    return render_template('index.html', config=options)
 
 
 @app.route('/test')
 @auth.login_required
 def test():
-	return "Hello, %s!\n" % auth.username()	
+    return "Hello, %s!\n" % auth.username()
 
 # Webservices
 # get data from mongodb by ID
 @app.route('/get/<int:id>')
 def get_id(id):
-	# connect to mongoDB and query database for ID
-	mongo_client = MongoClient(options["mongo_host"], options["mongo_port"])
-	mongo_db = mongo_client[options["mongo_db"]]
-	mongo_collection = mongo_db[options["mongo_col"]]
-	document = mongo_collection.find_one({"_id": str(id)})
+    # connect to mongoDB and query database for ID
+    mongo_client = MongoClient(options["mongo_host"], options["mongo_port"])
+    mongo_db = mongo_client[options["mongo_db"]]
+    mongo_collection = mongo_db[options["mongo_col"]]
+    document = mongo_collection.find_one({"_id": str(id)})
 
-	# return JSON
-	return json.dumps(document, sort_keys=True)
+    # return JSON
+    return json.dumps(document, sort_keys=True)
 
 # get last data added to the mongodb
 @app.route('/get/last')
 def get_last():
-	# connect to mongoDB and query database
-	mongo_client = MongoClient(options["mongo_host"], options["mongo_port"])
-	mongo_db = mongo_client[options["mongo_db"]]
-	mongo_collection = mongo_db[options["mongo_col"]]
-	# order new first and get the first one
-	cursor = mongo_collection.find().sort("_id", pymongo.DESCENDING).limit(1)
-	telem = cursor[0]
-	
-	# convert coordinates (+/-)
-	if telem["lat"][len(telem["lat"])-1] == 'S':
-		telem["lat"] = "-" + telem["lat"][0:len(telem["lat"])-1].lstrip("0")
-	else:
-		telem["lat"] = telem["lat"][0:len(telem["lat"])-1].lstrip("0")
+    # connect to mongoDB and query database
+    mongo_client = MongoClient(options["mongo_host"], options["mongo_port"])
+    mongo_db = mongo_client[options["mongo_db"]]
+    mongo_collection = mongo_db[options["mongo_col"]]
+    # order new first and get the first one
+    cursor = mongo_collection.find().sort("_id", pymongo.DESCENDING).limit(1)
+    telem = cursor[0]
 
-	if telem["lon"][len(telem["lon"])-1] == 'W':
-		telem["lon"] = "-" + telem["lon"][0:len(telem["lon"])-1].lstrip("0")
-	else:
-		telem["lon"] = telem["lon"][0:len(telem["lon"])-1].lstrip("0")
+    # convert coordinates (+/-)
+    if telem["lat"][len(telem["lat"])-1] == 'S':
+        telem["lat"] = "-" + telem["lat"][0:len(telem["lat"])-1].lstrip("0")
+    else:
+        telem["lat"] = telem["lat"][0:len(telem["lat"])-1].lstrip("0")
 
-	# return JSON
-	return json.dumps(telem, sort_keys=True)
-	
+    if telem["lon"][len(telem["lon"])-1] == 'W':
+        telem["lon"] = "-" + telem["lon"][0:len(telem["lon"])-1].lstrip("0")
+    else:
+        telem["lon"] = telem["lon"][0:len(telem["lon"])-1].lstrip("0")
+
+    # return JSON
+    return json.dumps(telem, sort_keys=True)
+
 # get altitude array for graphs
 @app.route('/get/alt')
 def get_alt():
-	# connect to mongoDB and query database
-	mongo_client = MongoClient(options["mongo_host"], options["mongo_port"])
-	mongo_db = mongo_client[options["mongo_db"]]
-	mongo_collection = mongo_db[options["mongo_col"]]
-	cursor = mongo_collection.find()
-	
-	# get array of altitudes
-	data = []
-	for doc in cursor:
-		data.append(doc["alt"])
+    # connect to mongoDB and query database
+    mongo_client = MongoClient(options["mongo_host"], options["mongo_port"])
+    mongo_db = mongo_client[options["mongo_db"]]
+    mongo_collection = mongo_db[options["mongo_col"]]
+    cursor = mongo_collection.find()
 
-	# return JSON
-	return json.dumps(data)
+    # get array of altitudes
+    data = []
+    for doc in cursor:
+        data.append(doc["alt"])
+
+    # return JSON
+    return json.dumps(data)
 
 # get all data
 @app.route('/get')
 def get_all():
-	# connect to mongoDB and query database
-	mongo_client = MongoClient(options["mongo_host"], options["mongo_port"])
-	mongo_db = mongo_client[options["mongo_db"]]
-	mongo_collection = mongo_db[options["mongo_col"]]
-	cursor = mongo_collection.find()
+    # connect to mongoDB and query database
+    mongo_client = MongoClient(options["mongo_host"], options["mongo_port"])
+    mongo_db = mongo_client[options["mongo_db"]]
+    mongo_collection = mongo_db[options["mongo_col"]]
+    cursor = mongo_collection.find()
 
-	# get array of all data
-	data = []
-	for doc in cursor:
-		# convert coordinates (+/-)
-		if doc["lat"][len(doc["lat"])-1] == 'S':
-			doc["lat"] = "-" + doc["lat"][0:len(doc["lat"])-1].lstrip("0")
-		else:
-			doc["lat"] = doc["lat"][0:len(doc["lat"])-1].lstrip("0")
+    # get array of all data
+    data = []
+    for doc in cursor:
+        # convert coordinates (+/-)
+        if doc["lat"][len(doc["lat"])-1] == 'S':
+            doc["lat"] = "-" + doc["lat"][0:len(doc["lat"])-1].lstrip("0")
+        else:
+            doc["lat"] = doc["lat"][0:len(doc["lat"])-1].lstrip("0")
 
-		if doc["lon"][len(doc["lon"])-1] == 'W':
-			doc["lon"] = "-" + doc["lon"][0:len(doc["lon"])-1].lstrip("0")
-		else:
-			doc["lon"] = doc["lon"][0:len(doc["lon"])-1].lstrip("0")
+        if doc["lon"][len(doc["lon"])-1] == 'W':
+            doc["lon"] = "-" + doc["lon"][0:len(doc["lon"])-1].lstrip("0")
+        else:
+            doc["lon"] = doc["lon"][0:len(doc["lon"])-1].lstrip("0")
 
-		data.append(doc)
+        data.append(doc)
 
-	# return JSON
-	return json.dumps(data, sort_keys=True)
+    # return JSON
+    return json.dumps(data, sort_keys=True)
 
 # inserts telemetry in database
 def insert_telemetry(telem):
-	# check telemetry (dict 13 elements)
-	if len(telem) < 12:
-		return "Error, not enough fields"
-	# add the _id (timestamp with microseconds)
-	telem["_id"] = str(int(time.mktime(datetime.now().timetuple())*1000000))
-	# connect to mongoDB and select database and collection
-	mongo_client = MongoClient(options["mongo_host"], options["mongo_port"])
-	mongo_db = mongo_client[options["mongo_db"]]
-	mongo_collection = mongo_db[options["mongo_col"]]
-	# insert data
-	return mongo_collection.insert(telem)
+    # check telemetry (dict 13 elements)
+    if len(telem) < 12:
+        return "Error, not enough fields"
+    # add the _id (timestamp with microseconds)
+    telem["_id"] = str(int(time.mktime(datetime.now().timetuple())*1000000))
+    # connect to mongoDB and select database and collection
+    mongo_client = MongoClient(options["mongo_host"], options["mongo_port"])
+    mongo_db = mongo_client[options["mongo_db"]]
+    mongo_collection = mongo_db[options["mongo_col"]]
+    # insert data
+    return mongo_collection.insert(telem)
 
 # sends a tweet with the telemetry
 def tweet_telemetry(telem):
-	# check telemetry (dict 13 elements)
-        if len(telem) < 12:
-                return "Error, not enough fields"
-	
-	# convert coordinates (+/-)
-	if telem["lat"][len(telem["lat"])-1] == 'S':
-		telem["lat"] = "-" + telem["lat"][0:len(telem["lat"])-1].lstrip("0")
-	else:
-		telem["lat"] = telem["lat"][0:len(telem["lat"])-1].lstrip("0")
+    # check telemetry (dict 13 elements)
+    if len(telem) < 12:
+        return "Error, not enough fields"
 
-	if telem["lon"][len(telem["lon"])-1] == 'W':
-		telem["lon"] = "-" + telem["lon"][0:len(telem["lon"])-1].lstrip("0")
-	else:
-		telem["lon"] = telem["lon"][0:len(telem["lon"])-1].lstrip("0")
+    # convert coordinates (+/-)
+    if telem["lat"][len(telem["lat"])-1] == 'S':
+        telem["lat"] = "-" + telem["lat"][0:len(telem["lat"])-1].lstrip("0")
+    else:
+        telem["lat"] = telem["lat"][0:len(telem["lat"])-1].lstrip("0")
 
-	# ok, create tweet text
-	status_text = "EKI-1 "
-	status_text += "está a "
-	status_text += str(telem["alt"]) + "m de altura"
-	status_text += "y a " + str(telem["tout"]) + "ºC sobrevolando "
-	status_text += "http://www.openstreetmap.org/?mlat="
-	status_text += str(telem["lat"]) + "&mlon="
-	status_text += str(telem["lon"]) + "&zoom=14"
-	
-	# insert tweet
-	auth = tweepy.OAuthHandler(options["twitter_cons_key"], options["twitter_cons_secret"])
-	auth.set_access_token(options["twitter_access_token"], options["twitter_access_secret"])
+    if telem["lon"][len(telem["lon"])-1] == 'W':
+        telem["lon"] = "-" + telem["lon"][0:len(telem["lon"])-1].lstrip("0")
+    else:
+        telem["lon"] = telem["lon"][0:len(telem["lon"])-1].lstrip("0")
 
-	api = tweepy.API(auth)
-	try:
-		if options["twitter_thread"] != "":
-			api.update_status(status=status_text, in_reply_to_status_id_str=options["twitter_thread"])
-		else:
-			api.update_status(status=status_text)
-	except:
-		return "Error enviando tweet"
+    # ok, create tweet text
+    status_text = "EKI-1 🎈"
+    status_text += "está a "
+    status_text += str(telem["alt"]) + "m de altura, "
+    status_text += "presión de " + str(telem["baro"]) + " mBar, "
+    status_text += "y a " + str(telem["tout"]) + "ºC, sobrevolando "
+    status_text += "http://www.openstreetmap.org/?mlat="
+    status_text += str(telem["lat"]) + "&mlon="
+    status_text += str(telem["lon"]) + "&zoom=14"
+
+    # insert tweet
+    auth = tweepy.OAuthHandler(options["twitter_cons_key"],
+            options["twitter_cons_secret"])
+    auth.set_access_token(options["twitter_access_token"],
+            options["twitter_access_secret"])
+
+    api = tweepy.API(auth)
+    try:
+        if options["twitter_thread"] != 0:
+            api.update_status(status=status_text, in_reply_to_status_id=options["twitter_thread"])
+        else:
+            api.update_status(status=status_text)
+    except:
+        app.logger.debug("Problema enviando tweet")
+        return "Error enviando tweet"
+
+
+# Uploads an image to twitter
+def tweet_image(image_path):
+    # prepare tweet
+    auth = tweepy.OAuthHandler(options["twitter_cons_key"],
+            options["twitter_cons_secret"])
+    auth.set_access_token(options["twitter_access_token"],
+            options["twitter_access_secret"])
+
+    api = tweepy.API(auth)
+
+    # upload the image
+    #media_id = None
+    #try:
+    #    media_id = api.media_upload(filename=image_path)
+    #except tweepy.TweepError as e:
+    #    app.logger.debug("Problema subiendo imagen a twitter")
+    #    app.logger.debug(e.response.text)
+    #    return "Problema subiendo la imagen"
+
+    # ok, create tweet text
+    status_text = "Esta es la última imagen recibida por EKI-1: 🎈 "
+
+    # send tweet
+    try:
+        if options["twitter_thread"] != 0:
+            #api.update_status(status=status_text,
+            #        in_reply_to_status_id=options["twitter_thread"],
+            #        media_ids=[media_id.media_id_string])
+            api.update_with_media(status=status_text,
+                        in_reply_to_status_id=options["twitter_thread"],
+                        filename=image_path)
+        else:
+            #api.update_status(status=status_text,
+            #        media_ids=[media_id.media_id_string])
+                        api.update_with_media(status=status_text,
+                        filename=image_path)
+    except:
+        app.logger.debug("Problema enviando tweet de imagen")
+
 
 
 
@@ -193,64 +238,69 @@ def tweet_telemetry(telem):
 @app.route('/upload', methods=['POST', 'GET'])
 @auth.login_required
 def upload():
-	# post or get ?
-	if request.method == 'POST':
-		# image?
-		if 'image' in request.args:
-			# we have a image in the post data
-			# get name from url parameters
-			name = request.args.get('image')
+    # post or get ?
+    if request.method == 'POST':
+        # image?
+        if 'image' in request.args:
+            # we have a image in the post data
+            # get name from url parameters
+            name = request.args.get('image')
 
-			image = open("/var/www/xzakox/public_html/test/static/ssdv/" + name, "w")
-			image.write(request.get_data().decode('base64'))
-			image.close()
+            if name != "":
+                image = open("/var/www/xzakox/public_html/test/static/ssdv/" + name, "w")
+                image.write(request.get_data().decode('base64'))
+                image.close()
 
-			last = open("/var/www/xzakox/public_html/test/static/ssdv/last.jpg", "w")
-			last.write(request.get_data().decode('base64'))
-			last.close()
+                last = open("/var/www/xzakox/public_html/test/static/ssdv/last.jpg", "w")
+                last.write(request.get_data().decode('base64'))
+                last.close()
 
-			return "uploaded image: " + name + ".\n"
+                # tweet?
+                if options['twitter_enabled']:
+                    tweet_image("/var/www/xzakox/public_html/test/static/ssdv/last.jpg")
 
-		# telemetry?
-		elif request.form['telemetry'] != "":
-			# return "detected telemetry.\n" + request.form['telemetry'] + "\n"
-			# get data
-			data = request.form['telemetry'].split(";")
-			# create dictionary
-			telemetry = {
-				'date' : data[0],
-				'time' : data[1],
-				'lat'  : data[2],
-				'lon'  : data[3],
-				'alt'  : data[4],
-				'batt' : data[5],
-				'tin'  : data[6],
-				'tout' : data[7],
-				'baro' : data[8],
-				'hdg'  : data[9],
-				'spd'  : data[10],
-				'sats' : data[11],
-				'a_rate' : data[12]
-			}
-			# insert data
-			inserted = insert_telemetry(telemetry)
+                return "uploaded image: " + name + ".\n"
+            else:
+                return "error uploading image"
 
-                        # tweet?
-                        if config['twitter_enabled']:
-                            if insert_counter == 0:
-                                tweet_telemetry(telemetry)
-                            insert_counter += 1
-                            if insert_counter > config['twitter_interval']:
-                                insert_counter = 0
+        # telemetry?
+        elif request.form['telemetry'] != "":
+            # return "detected telemetry.\n" + request.form['telemetry'] + "\n"
+            # get data
+            data = request.form['telemetry'].split(";")
+            # create dictionary
+            telemetry = {
+                'date' : data[0],
+                'time' : data[1],
+                'lat'  : data[2],
+                'lon'  : data[3],
+                'alt'  : data[4],
+                'batt' : data[5],
+                'tin'  : data[6],
+                'tout' : data[7],
+                'baro' : data[8],
+                'hdg'  : data[9],
+                'spd'  : data[10],
+                'sats' : data[11],
+                'a_rate' : data[12]
+            }
+            # insert data
+            inserted = insert_telemetry(telemetry)
 
-                        return inserted
-			
-			
-		else:
-			return "nothing detected!\n"
-	else:
-		return "what?\n"
-	
+            # tweet?
+            if options['twitter_enabled']:
+                if app.insert_counter == 0:
+                    tweet_telemetry(telemetry)
+                app.insert_counter += 1
+                if app.insert_counter > options['twitter_interval']:
+                    app.insert_counter = 0
+
+            return inserted
+        else:
+            return "nothing detected!\n"
+    else:
+        return "what?\n"
+
 ######### MAIN ##########
 if __name__ == '__main__':
     app.run(debug=True)

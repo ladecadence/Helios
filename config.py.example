@@ -14,7 +14,7 @@ options = {
 	"ssdv_dir" : "ssdv/",
 	"twitter_enabled": True,
 	"twitter_interval": 5,
-	"twitter_thread": "",
+	"twitter_thread": 0,
 	"twitter_cons_key": "",
 	"twitter_cons_secret": "",
 	"twitter_access_token": "",
