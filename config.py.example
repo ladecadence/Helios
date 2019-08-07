@@ -11,6 +11,7 @@ options = {
 	"mongo_port" : 27017,
 	"mongo_db" : "ashab-test",
 	"mongo_col" : "data",
+	"ssdv_path": "/var/www/full/path/"
 	"ssdv_dir" : "ssdv/",
 	"twitter_enabled": True,
 	"twitter_interval": 5,

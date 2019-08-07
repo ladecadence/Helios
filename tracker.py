@@ -148,12 +148,9 @@ def insert_telemetry(telem):
     # insert data
     return mongo_collection.insert(telem)
 
-# sends a tweet with the telemetry
-def tweet_telemetry(telem):
-    # check telemetry (dict 13 elements)
-    if len(telem) < 12:
-        return "Error, not enough fields"
 
+# creates telemetry text
+def gen_telemetry(telem):
     # convert coordinates (+/-)
     if telem["lat"][len(telem["lat"])-1] == 'S':
         telem["lat"] = "-" + telem["lat"][0:len(telem["lat"])-1].lstrip("0")
@@ -166,14 +163,29 @@ def tweet_telemetry(telem):
         telem["lon"] = telem["lon"][0:len(telem["lon"])-1].lstrip("0")
 
     # ok, create tweet text
-    status_text = "EKI-1 🎈"
-    status_text += "está a "
-    status_text += str(telem["alt"]) + "m de altura, "
-    status_text += "presión de " + str(telem["baro"]) + " mBar, "
-    status_text += "y a " + str(telem["tout"]) + "ºC, sobrevolando "
-    status_text += "http://www.openstreetmap.org/?mlat="
-    status_text += str(telem["lat"]) + "&mlon="
-    status_text += str(telem["lon"]) + "&zoom=14"
+    text = "EKI-1 🎈"
+    text += "está a "
+    text += str(telem["alt"]) + "m de altura, "
+    text += "presión de " + str(telem["baro"]) + " mBar, "
+    text += "y a " + str(telem["tout"]) + "ºC, sobrevolando: / "
+    text += "EKI-1 🎈"
+    text += str(telem["alt"]) + " m altitudean, "
+    text += str(telem["baro"]) + " mBar presioa, "
+    text += "eta " + str(telem["tout"]) + "ºC dago, gainean: "
+    text += "http://www.openstreetmap.org/?mlat="
+    text += str(telem["lat"]) + "&mlon="
+    text += str(telem["lon"]) + "&zoom=14"
+
+    return text
+
+# sends a tweet with the telemetry
+def tweet_telemetry(telem):
+    # check telemetry (dict 13 elements)
+    if len(telem) < 12:
+        return "Error, not enough fields"
+
+    # generate status message
+    status_text = gen_telemetry_text(telem)
 
     # insert tweet
     auth = tweepy.OAuthHandler(options["twitter_cons_key"],
@@ -202,7 +214,7 @@ def tweet_image(image_path):
 
     api = tweepy.API(auth)
 
-    # upload the image
+    # upload the image (Commented the modern API for python3)
     #media_id = None
     #try:
     #    media_id = api.media_upload(filename=image_path)
@@ -212,7 +224,8 @@ def tweet_image(image_path):
     #    return "Problema subiendo la imagen"
 
     # ok, create tweet text
-    status_text = "Esta es la última imagen recibida por EKI-1: 🎈 "
+    status_text = "Esta es la última imagen recibida por EKI-1: 🎈 / "
+    status_text += "Hau da EKI-1 jasotako azken argazkia: 🎈 "
 
     # send tweet
     try:
@@ -232,8 +245,6 @@ def tweet_image(image_path):
         app.logger.debug("Problema enviando tweet de imagen")
 
 
-
-
 # upload
 @app.route('/upload', methods=['POST', 'GET'])
 @auth.login_required
@@ -247,17 +258,17 @@ def upload():
             name = request.args.get('image')
 
             if name != "":
-                image = open("/var/www/xzakox/public_html/test/static/ssdv/" + name, "w")
+                image = open(options['ssdv_path'] + name, "w")
                 image.write(request.get_data().decode('base64'))
                 image.close()
 
-                last = open("/var/www/xzakox/public_html/test/static/ssdv/last.jpg", "w")
+                last = open(options['ssdv_path'] + "last.jpg", "w")
                 last.write(request.get_data().decode('base64'))
                 last.close()
 
                 # tweet?
                 if options['twitter_enabled']:
-                    tweet_image("/var/www/xzakox/public_html/test/static/ssdv/last.jpg")
+                    tweet_image(options['ssdv_path'] + "last.jpg")
 
                 return "uploaded image: " + name + ".\n"
             else:
