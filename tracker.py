@@ -11,7 +11,7 @@ from config import options
 from datetime import datetime
 import time
 import base64
-import tweepy
+import twitter_interface
 
 # Create app and configure logging
 app = Flask(__name__)
@@ -20,6 +20,9 @@ LOG_FILENAME = '/tmp/flask-errores.log'
 logging.basicConfig(filename=LOG_FILENAME,level=logging.DEBUG)
 app.logger.debug("Arranque de la app")
 app.insert_counter = 0  # for twitts
+
+# twitter interface
+tweets = twitter_interface.TwitterInterface(options)
 
 # HTTPBasicAuth, returns hashed password
 @auth.hash_password
@@ -149,102 +152,6 @@ def insert_telemetry(telem):
     return mongo_collection.insert(telem)
 
 
-# creates telemetry text
-def gen_telemetry(telem):
-    # convert coordinates (+/-)
-    if telem["lat"][len(telem["lat"])-1] == 'S':
-        telem["lat"] = "-" + telem["lat"][0:len(telem["lat"])-1].lstrip("0")
-    else:
-        telem["lat"] = telem["lat"][0:len(telem["lat"])-1].lstrip("0")
-
-    if telem["lon"][len(telem["lon"])-1] == 'W':
-        telem["lon"] = "-" + telem["lon"][0:len(telem["lon"])-1].lstrip("0")
-    else:
-        telem["lon"] = telem["lon"][0:len(telem["lon"])-1].lstrip("0")
-
-    # ok, create tweet text
-    text = "EKI-1 🎈"
-    text += "está a "
-    text += str(telem["alt"]) + "m de altura, "
-    text += "presión de " + str(telem["baro"]) + " mBar, "
-    text += "y a " + str(telem["tout"]) + "ºC, sobrevolando: / "
-    text += "EKI-1 🎈"
-    text += str(telem["alt"]) + " m altitudean, "
-    text += str(telem["baro"]) + " mBar presioa, "
-    text += "eta " + str(telem["tout"]) + "ºC dago, gainean: "
-    text += "http://www.openstreetmap.org/?mlat="
-    text += str(telem["lat"]) + "&mlon="
-    text += str(telem["lon"]) + "&zoom=14"
-
-    return text
-
-# sends a tweet with the telemetry
-def tweet_telemetry(telem):
-    # check telemetry (dict 13 elements)
-    if len(telem) < 12:
-        return "Error, not enough fields"
-
-    # generate status message
-    status_text = gen_telemetry_text(telem)
-
-    # insert tweet
-    auth = tweepy.OAuthHandler(options["twitter_cons_key"],
-            options["twitter_cons_secret"])
-    auth.set_access_token(options["twitter_access_token"],
-            options["twitter_access_secret"])
-
-    api = tweepy.API(auth)
-    try:
-        if options["twitter_thread"] != 0:
-            api.update_status(status=status_text, in_reply_to_status_id=options["twitter_thread"])
-        else:
-            api.update_status(status=status_text)
-    except:
-        app.logger.debug("Problema enviando tweet")
-        return "Error enviando tweet"
-
-
-# Uploads an image to twitter
-def tweet_image(image_path):
-    # prepare tweet
-    auth = tweepy.OAuthHandler(options["twitter_cons_key"],
-            options["twitter_cons_secret"])
-    auth.set_access_token(options["twitter_access_token"],
-            options["twitter_access_secret"])
-
-    api = tweepy.API(auth)
-
-    # upload the image (Commented the modern API for python3)
-    #media_id = None
-    #try:
-    #    media_id = api.media_upload(filename=image_path)
-    #except tweepy.TweepError as e:
-    #    app.logger.debug("Problema subiendo imagen a twitter")
-    #    app.logger.debug(e.response.text)
-    #    return "Problema subiendo la imagen"
-
-    # ok, create tweet text
-    status_text = "Esta es la última imagen recibida por EKI-1: 🎈 / "
-    status_text += "Hau da EKI-1 jasotako azken argazkia: 🎈 "
-
-    # send tweet
-    try:
-        if options["twitter_thread"] != 0:
-            #api.update_status(status=status_text,
-            #        in_reply_to_status_id=options["twitter_thread"],
-            #        media_ids=[media_id.media_id_string])
-            api.update_with_media(status=status_text,
-                        in_reply_to_status_id=options["twitter_thread"],
-                        filename=image_path)
-        else:
-            #api.update_status(status=status_text,
-            #        media_ids=[media_id.media_id_string])
-                        api.update_with_media(status=status_text,
-                        filename=image_path)
-    except:
-        app.logger.debug("Problema enviando tweet de imagen")
-
-
 # upload
 @app.route('/upload', methods=['POST', 'GET'])
 @auth.login_required
@@ -268,7 +175,7 @@ def upload():
 
                 # tweet?
                 if options['twitter_enabled']:
-                    tweet_image(options['ssdv_path'] + "last.jpg")
+                    tweets.tweet_image(options['ssdv_path'] + "last.jpg")
 
                 return "uploaded image: " + name + ".\n"
             else:
@@ -301,7 +208,7 @@ def upload():
             # tweet?
             if options['twitter_enabled']:
                 if app.insert_counter == 0:
-                    tweet_telemetry(telemetry)
+                    tweets.tweet_telemetry(telemetry)
                 app.insert_counter += 1
                 if app.insert_counter > options['twitter_interval']:
                     app.insert_counter = 0
