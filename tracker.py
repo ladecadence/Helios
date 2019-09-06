@@ -74,23 +74,28 @@ def get_last():
     mongo_client = MongoClient(options["mongo_host"], options["mongo_port"])
     mongo_db = mongo_client[options["mongo_db"]]
     mongo_collection = mongo_db[options["mongo_col"]]
+
     # order new first and get the first one
     cursor = mongo_collection.find().sort("_id", pymongo.DESCENDING).limit(1)
-    telem = cursor[0]
 
-    # convert coordinates (+/-)
-    if telem["lat"][len(telem["lat"])-1] == 'S':
-        telem["lat"] = "-" + telem["lat"][0:len(telem["lat"])-1].lstrip("0")
+    if cursor.count() > 0:
+        telem = cursor[0]
+
+        # convert coordinates (+/-)
+        if telem["lat"][len(telem["lat"])-1] == 'S':
+            telem["lat"] = "-" + telem["lat"][0:len(telem["lat"])-1].lstrip("0")
+        else:
+            telem["lat"] = telem["lat"][0:len(telem["lat"])-1].lstrip("0")
+
+        if telem["lon"][len(telem["lon"])-1] == 'W':
+            telem["lon"] = "-" + telem["lon"][0:len(telem["lon"])-1].lstrip("0")
+        else:
+            telem["lon"] = telem["lon"][0:len(telem["lon"])-1].lstrip("0")
+
+        # return JSON
+        return json.dumps(telem, sort_keys=True)
     else:
-        telem["lat"] = telem["lat"][0:len(telem["lat"])-1].lstrip("0")
-
-    if telem["lon"][len(telem["lon"])-1] == 'W':
-        telem["lon"] = "-" + telem["lon"][0:len(telem["lon"])-1].lstrip("0")
-    else:
-        telem["lon"] = telem["lon"][0:len(telem["lon"])-1].lstrip("0")
-
-    # return JSON
-    return json.dumps(telem, sort_keys=True)
+        return "{}"
 
 # get altitude array for graphs
 @app.route('/get/alt')
@@ -175,7 +180,10 @@ def upload():
 
                 # tweet?
                 if options['twitter_enabled']:
-                    tweets.tweet_image(options['ssdv_path'] + "last.jpg")
+                    status = tweets.tweet_image(options['ssdv_path'] + "last.jpg")
+                    if "Error" in status:
+                        app.logger.debug("Fallo twiteando imagen")
+                        app.logger.debug(status)
 
                 return "uploaded image: " + name + ".\n"
             else:
@@ -208,7 +216,10 @@ def upload():
             # tweet?
             if options['twitter_enabled']:
                 if app.insert_counter == 0:
-                    tweets.tweet_telemetry(telemetry)
+                    status = tweets.tweet_telemetry(telemetry)
+                    if "Error" in status:
+                        app.logger.debug("Fallo twiteando telemetria")
+                        app.logger.debug(status)
                 app.insert_counter += 1
                 if app.insert_counter > options['twitter_interval']:
                     app.insert_counter = 0
